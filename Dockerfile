@@ -1,4 +1,4 @@
-# Use the official Python image with Node.js pre-installed
+# Use the official Playwright image with all dependencies
 FROM mcr.microsoft.com/playwright:focal
 
 # Set working directory
@@ -10,7 +10,7 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright and its dependencies
+# Install Playwright browsers and dependencies
 RUN npx playwright install --with-deps
 
 # Expose the Streamlit port
