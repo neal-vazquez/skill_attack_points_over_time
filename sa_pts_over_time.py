@@ -5,61 +5,59 @@ from requests_html import HTMLSession
 import re
 
 def scrape_data(user_code):
-    url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
-    print(f'Requesting URL: {url}')
-    
     session = HTMLSession()
+    url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
     response = session.get(url)
     
-    # Extract the username from JavaScript variable
-    scripts = response.html.find('script', containing='sName')
-    if scripts:
-        username = scripts[0].text.split('sName=')[1].split(';')[0].strip("'")
-    else:
-        username = "Unknown"
-
-    # Extract data from JavaScript arrays
-    data_script = response.html.find('script', containing='dddIndex')[0].text
-
-    dsUpdate = re.findall(r"dsUpdate\[\d+\]='([\d/-]+)';", data_script)
-    ddsPoint = re.findall(r"ddsPoint\[\d+\]\[0\]='([\d.]+)';", data_script)
-
-    if dsUpdate and ddsPoint:
-        data = [{'Date': date, 'Skill Point': float(skill_point)} for date, skill_point in zip(dsUpdate, ddsPoint)]
-    else:
-        data = None
+    # Render JavaScript
+    response.html.render()
     
-    return username, data
+    # Extract JavaScript arrays from the page content
+    page_content = response.html.html
+    
+    # Finding the JavaScript arrays in the page content
+    dddIndex = find_js_array(page_content, 'dddIndex')
+    ddsMusic = find_js_array(page_content, 'ddsMusic')
+    dddStyle = find_js_array(page_content, 'dddStyle')
+    dddSequence = find_js_array(page_content, 'dddSequence')
+    dddDifficulty = find_js_array(page_content, 'dddDifficulty')
+    ddsScore = find_js_array(page_content, 'ddsScore')
+    dddFc = find_js_array(page_content, 'dddFc')
+    ddsPoint = find_js_array(page_content, 'ddsPoint')
+    
+    # Assuming all arrays have the same length
+    data = []
+    for i in range(len(dddIndex)):
+        for j in range(len(dddIndex[i])):
+            data.append({
+                "Index": dddIndex[i][j],
+                "Music": ddsMusic[i][j],
+                "Style": dddStyle[i][j],
+                "Sequence": dddSequence[i][j],
+                "Difficulty": dddDifficulty[i][j],
+                "Score": ddsScore[i][j],
+                "Fc": dddFc[i][j],
+                "Point": ddsPoint[i][j]
+            })
+    
+    return data
+
+def find_js_array(page_content, array_name):
+    start = page_content.find(f"{array_name} = new Array();")
+    end = page_content.find(";", start)
+    array_content = page_content[start:end]
+    return eval(array_content.replace("new Array", ""))
 
 def plot_data(data, username, user_code):
-    if not data:
-        st.write("No data available to plot.")
-        return
-    
-    # Create DataFrame
     df = pd.DataFrame(data)
-    df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d')
+    st.write(f"Skill Attack Points Over Time for {username} (Code: {user_code})")
+    st.write(df)
 
-    # Calculate yearly points gained
-    df['Year'] = df['Date'].dt.year
-    yearly_gain = df.groupby('Year')['Skill Point'].max().diff().fillna(0)
-
-    # Add dash in the middle of the user code
-    formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
-
-    # Plot the data with yearly points gained as labels
-    plt.figure(figsize=(12, 6))
-    plt.plot(df['Date'], df['Skill Point'], marker='o', linestyle='-', color='b')
-
-    # Add data labels for yearly points gained
-    for year, gain in yearly_gain.items():
-        max_date = df[df['Year'] == year]['Date'].max()
-        max_skill = df[df['Year'] == year]['Skill Point'].max()
-        plt.text(max_date, max_skill, f'+{gain:.2f}', fontsize=9, ha='right', va='bottom')
-
-    plt.title(f'Skill Points Over Time with Yearly Gains\nFor Player: {username} ({formatted_user_code})')
+    plt.figure(figsize=(10, 5))
+    plt.plot(df['Date'], df['Point'], marker='o')
+    plt.title(f"Skill Attack Points Over Time for {username}")
     plt.xlabel('Date')
-    plt.ylabel('Skill Point')
+    plt.ylabel('Points')
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
