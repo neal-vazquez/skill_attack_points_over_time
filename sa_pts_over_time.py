@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from requests_html import HTMLSession
+from requests_html import AsyncHTMLSession
 import asyncio
 
 async def fetch_page_content(url):
-    session = HTMLSession()
-    response = session.get(url)
+    session = AsyncHTMLSession()
+    response = await session.get(url)
     await response.html.arender()
     return response
 
