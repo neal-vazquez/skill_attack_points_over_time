@@ -101,7 +101,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # Title and description
 st.markdown('<div class="title-section"><h1>Skill Attack Points Over Time<br>Chart Generator</h1>', unsafe_allow_html=True)
 
-st.write("Enter the 8-digit ddr code to scrape a Skill Attack page and visualize the trend of skill points for a given user over time. Each dot represents an update to the player's skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.")
+st.write("Enter the 8-digit ddr code to scrape a Skill Attack page and visualize the trend of skill points for a given player over time. Each dot represents an update to the player's skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.")
 st.markdown('<div class="title-section"><br>', unsafe_allow_html=True)
 
 user_code = st.text_input('Please enter the 8-digit ddr code without dashes:')
@@ -111,7 +111,6 @@ if st.button('Submit'):
         username, data = scrape_data(user_code)
         if data:
             st.write('Data scraped successfully:')
-            st.write(data)
             plot_data(data, username, user_code)
         else:
             st.write('No data found or invalid user code.')
