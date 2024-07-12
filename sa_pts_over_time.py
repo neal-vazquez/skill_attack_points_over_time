@@ -3,6 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import asyncio
 from playwright.async_api import async_playwright
+import os
+import subprocess
+
+# Run playwright install to ensure browsers are installed
+subprocess.run(["playwright", "install"])
 
 async def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
