@@ -9,30 +9,21 @@ def scrape_data(user_code):
     response = requests.get(url)
     page_content = response.text
 
-    # Extract JavaScript variables
+    # Extract JavaScript arrays
     dddIndex = extract_js_array(page_content, 'dddIndex')
-    ddsMusic = extract_js_array(page_content, 'ddsMusic')
-    dddStyle = extract_js_array(page_content, 'dddStyle')
-    dddSequence = extract_js_array(page_content, 'dddSequence')
-    dddDifficulty = extract_js_array(page_content, 'dddDifficulty')
-    ddsScore = extract_js_array(page_content, 'ddsScore')
-    dddFc = extract_js_array(page_content, 'dddFc')
+    dsUpdate = extract_js_array(page_content, 'dsUpdate')
+    dsSkill = extract_js_array(page_content, 'dsSkill')
     ddsPoint = extract_js_array(page_content, 'ddsPoint')
 
     # Combine data into a structured format
     data = []
-    for i in range(len(dddIndex)):
-        for j in range(len(dddIndex[i])):
-            data.append({
-                "Index": dddIndex[i][j],
-                "Music": ddsMusic[i][j],
-                "Style": dddStyle[i][j],
-                "Sequence": dddSequence[i][j],
-                "Difficulty": dddDifficulty[i][j],
-                "Score": ddsScore[i][j],
-                "Fc": dddFc[i][j],
-                "Point": ddsPoint[i][j]
-            })
+    for i in range(len(dsUpdate)):
+        data.append({
+            "Update": dsUpdate[i],
+            "Skill Point": dsSkill[i],
+            "Index": dddIndex[i][0] if dddIndex[i] else None,
+            "Point": ddsPoint[i]
+        })
 
     # Extract the username from JavaScript variable
     username = extract_js_variable(page_content, 'sName')
@@ -40,12 +31,14 @@ def scrape_data(user_code):
     return username, data
 
 def extract_js_array(content, var_name):
-    regex = re.compile(rf"{var_name}\s*=\s*new Array\(\);(.*?)\s*;", re.DOTALL)
+    regex = re.compile(rf"{var_name}\s*=\s*new Array\((.*?)\);", re.DOTALL)
     match = regex.search(content)
     if match:
         array_content = match.group(1).strip()
-        array_content = array_content.replace('new Array(', '[').replace(')', ']')
-        array_content = re.sub(r'\s+', '', array_content)
+        # Replace JavaScript array syntax with Python list syntax
+        array_content = array_content.replace("'", '"')
+        array_content = f"[{array_content}]"
+        array_content = array_content.replace(", ", ",").replace(",[", ", [")
         return eval(array_content)
     return []
 
@@ -62,10 +55,10 @@ def plot_data(data, username, user_code):
     st.write(df)
 
     plt.figure(figsize=(10, 5))
-    plt.plot(df['Index'], df['Point'], marker='o')
+    plt.plot(pd.to_datetime(df['Update']), df['Skill Point'], marker='o')
     plt.title(f"Skill Attack Points Over Time for {username}")
-    plt.xlabel('Index')
-    plt.ylabel('Points')
+    plt.xlabel('Update')
+    plt.ylabel('Skill Points')
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
