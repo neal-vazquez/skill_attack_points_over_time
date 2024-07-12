@@ -4,13 +4,17 @@ import matplotlib.pyplot as plt
 import asyncio
 from playwright.async_api import async_playwright
 import subprocess
+import os
 
 # Run setup.sh to ensure Playwright browsers are installed
 setup_result = subprocess.run(["/bin/bash", "setup.sh"])
 
-# Read the setup log file to display in Streamlit for debugging
-with open("/tmp/setup.log", "r") as log_file:
-    setup_log = log_file.read()
+# Check if the log file exists and read it
+if os.path.exists("/tmp/setup.log"):
+    with open("/tmp/setup.log", "r") as log_file:
+        setup_log = log_file.read()
+else:
+    setup_log = "No setup log found."
 
 # Display the setup log for debugging
 st.text(setup_log)
