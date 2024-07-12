@@ -19,7 +19,7 @@ async def scrape_data(user_code):
         await page.goto(url)
 
         # Extract the username from JavaScript variable
-        username = await page.evaluate('sName')
+        username = await page.evaluate('() => sName')
 
         # Extract data from the table
         data = await page.evaluate('''
