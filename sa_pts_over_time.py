@@ -2,14 +2,20 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from requests_html import HTMLSession
+import asyncio
+
+async def fetch_page_content(url):
+    session = HTMLSession()
+    response = session.get(url)
+    await response.html.arender()
+    return response
 
 def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
     print(f'Requesting URL: {url}')
-    
-    session = HTMLSession()
-    response = session.get(url)
-    response.html.render()
+
+    # Fetch page content
+    response = asyncio.run(fetch_page_content(url))
 
     # Extract the username from JavaScript variable
     username = response.html.search("sName='{}';")[0]
