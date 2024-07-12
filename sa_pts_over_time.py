@@ -43,8 +43,8 @@ def scrape_data(user_code):
                     print(f'Skipping row due to invalid skill point: {skill_point}')
     
     if not data:
-        return None, 'No data found or invalid user code.'
-    
+        return username, None
+
     return username, data
 
 def plot_data(data, username, user_code):
