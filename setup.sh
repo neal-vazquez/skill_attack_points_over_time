@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Ensure the script is executed with bash
-set -e
-
 # Log the installation process to a log file
 exec > >(tee -i /tmp/setup.log)
 exec 2>&1
