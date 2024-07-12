@@ -7,7 +7,7 @@ import os
 import subprocess
 
 # Run playwright install to ensure browsers are installed
-subprocess.run(["playwright", "install"])
+subprocess.run(["/bin/bash", "setup.sh"])
 
 async def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
