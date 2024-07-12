@@ -1,2 +1,4 @@
-echo "playwright install" > setup.sh
-chmod +x setup.sh
+#!/bin/bash
+
+# Install Playwright browsers
+playwright install
