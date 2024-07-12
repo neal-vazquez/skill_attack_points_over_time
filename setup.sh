@@ -1,4 +1,4 @@
 #!/bin/bash
 
-# Install Playwright browsers
-playwright install --with-deps
+# Install Playwright browsers with dependencies
+npx playwright install --with-deps
