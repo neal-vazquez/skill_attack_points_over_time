@@ -5,7 +5,7 @@ import asyncio
 from playwright.async_api import async_playwright
 import subprocess
 
-# Run setup.sh to ensure Playwright browsers are installed and log output
+# Run setup.sh to ensure Playwright browsers are installed
 subprocess.run(["/bin/bash", "setup.sh"])
 
 async def scrape_data(user_code):
