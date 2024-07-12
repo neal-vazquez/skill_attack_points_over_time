@@ -2,3 +2,4 @@ streamlit
 pandas
 matplotlib
 requests-html
+lxml

@@ -3,6 +3,10 @@ FROM python:3.11-slim
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \
     libnss3 \
     libnspr4 \
     libatk1.0-0 \
