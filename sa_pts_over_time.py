@@ -1,51 +1,39 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from requests_html import HTMLSession
 import asyncio
-from playwright.async_api import async_playwright
 
-async def scrape_data(user_code):
+def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
     print(f'Requesting URL: {url}')
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
-        await page.goto(url)
+    session = HTMLSession()
+    response = session.get(url)
 
-        # Extract the username from JavaScript variable
-        username = await page.evaluate('() => sName')
+    # Extract the username from JavaScript variable
+    username = response.html.find('script', containing='sName')[0].text.split('sName=')[1].split(';')[0].strip("'")
 
-        # Extract data from the table
-        data = await page.evaluate('''
-            () => {
-                const rows = Array.from(document.querySelectorAll('table tr'));
-                return rows.slice(1).map(row => {
-                    const cols = row.querySelectorAll('td');
-                    if (cols.length >= 2) {
-                        return {
-                            date: cols[0].innerText.trim(),
-                            skill_point: cols[1].innerText.trim()
-                        };
-                    }
-                    return null;
-                }).filter(row => row !== null);
-            }
-        ''')
+    # Extract data from the table
+    data = []
+    table = response.html.find('table')[0]  # Assuming the table is the first table on the page
+    rows = table.find('tr')[1:]  # Skip the header row
 
-        await browser.close()
+    for row in rows:
+        cols = row.find('td')
+        if len(cols) >= 2:
+            date = cols[0].text.strip()
+            skill_point = cols[1].text.strip()
+            try:
+                skill_point = float(skill_point)
+                data.append({'Date': date, 'Skill Point': skill_point})
+            except ValueError:
+                print(f'Skipping row due to invalid skill point: {skill_point}')
 
-    # Convert skill points to float and filter out invalid entries
-    cleaned_data = []
-    for row in data:
-        try:
-            skill_point = float(row['skill_point'])
-            cleaned_data.append({'Date': row['date'], 'Skill Point': skill_point})
-            print(f'Added data: Date={row["date"]}, Skill Point={skill_point}')
-        except ValueError:
-            print(f'Skipping row due to invalid skill point: {row["skill_point"]}')
+    if not data:
+        return None, 'No data found or invalid user code.'
 
-    return username, cleaned_data if cleaned_data else None
+    return username, data
 
 def plot_data(data, username, user_code):
     # Create DataFrame
@@ -105,7 +93,7 @@ user_code = st.text_input('Please enter the 8-digit ddr code:')
 
 if st.button('Submit'):
     if user_code:
-        username, data = asyncio.run(scrape_data(user_code))
+        username, data = scrape_data(user_code)
         if data:
             st.write('Data scraped successfully:')
             st.write(data)

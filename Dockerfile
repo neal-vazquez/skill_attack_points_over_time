@@ -1,5 +1,5 @@
-# Use the official Playwright image with all dependencies
-FROM mcr.microsoft.com/playwright:focal
+# Use the official Python image with Debian
+FROM python:3.11-slim
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -29,9 +29,6 @@ COPY . .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Playwright browsers
-RUN npx playwright install --with-deps
 
 # Expose the Streamlit port
 EXPOSE 8501
