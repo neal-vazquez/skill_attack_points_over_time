@@ -2,37 +2,49 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from requests_html import HTMLSession
-import asyncio
 
 def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
     print(f'Requesting URL: {url}')
-
+    
     session = HTMLSession()
     response = session.get(url)
-
+    
+    # Debugging: Show the entire HTML content
+    st.write("Page content preview:", response.html.html[:1000])  # Preview the first 1000 characters of the HTML
+    
     # Extract the username from JavaScript variable
-    username = response.html.find('script', containing='sName')[0].text.split('sName=')[1].split(';')[0].strip("'")
-
+    scripts = response.html.find('script', containing='sName')
+    if scripts:
+        username = scripts[0].text.split('sName=')[1].split(';')[0].strip("'")
+    else:
+        username = "Unknown"
+    
     # Extract data from the table
     data = []
-    table = response.html.find('table')[0]  # Assuming the table is the first table on the page
-    rows = table.find('tr')[1:]  # Skip the header row
-
-    for row in rows:
-        cols = row.find('td')
-        if len(cols) >= 2:
-            date = cols[0].text.strip()
-            skill_point = cols[1].text.strip()
-            try:
-                skill_point = float(skill_point)
-                data.append({'Date': date, 'Skill Point': skill_point})
-            except ValueError:
-                print(f'Skipping row due to invalid skill point: {skill_point}')
-
+    tables = response.html.find('table')
+    
+    # Debugging: Show the number of tables found
+    st.write(f"Number of tables found: {len(tables)}")
+    
+    if tables:
+        table = tables[0]  # Assuming the table is the first table on the page
+        rows = table.find('tr')[1:]  # Skip the header row
+        
+        for row in rows:
+            cols = row.find('td')
+            if len(cols) >= 2:
+                date = cols[0].text.strip()
+                skill_point = cols[1].text.strip()
+                try:
+                    skill_point = float(skill_point)
+                    data.append({'Date': date, 'Skill Point': skill_point})
+                except ValueError:
+                    print(f'Skipping row due to invalid skill point: {skill_point}')
+    
     if not data:
         return None, 'No data found or invalid user code.'
-
+    
     return username, data
 
 def plot_data(data, username, user_code):
