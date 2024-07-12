@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev \
     libffi-dev \
     python3-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
     libnss3 \
     libnspr4 \
     libatk1.0-0 \
