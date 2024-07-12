@@ -11,23 +11,21 @@ def scrape_data(user_code):
     session = HTMLSession()
     response = session.get(url)
     
-    # Debugging: Show the entire HTML content
-    st.write("Page content preview:", response.html.html[:1000])  # Preview the first 1000 characters of the HTML
-
     # Extract the username from JavaScript variable
     scripts = response.html.find('script', containing='sName')
     if scripts:
         username = scripts[0].text.split('sName=')[1].split(';')[0].strip("'")
     else:
         username = "Unknown"
-    
+
     # Extract data from JavaScript arrays
     data_script = response.html.find('script', containing='dddIndex')[0].text
-    dates = re.findall(r"ddsIndex\[\d+\]\[0\]='([\d/-]+)';", data_script)
-    skill_points = re.findall(r"ddsPoint\[\d+\]\[0\]='([\d.]+)';", data_script)
-    
-    if dates and skill_points:
-        data = [{'Date': date, 'Skill Point': float(skill_point)} for date, skill_point in zip(dates, skill_points)]
+
+    dsUpdate = re.findall(r"dsUpdate\[\d+\]='([\d/-]+)';", data_script)
+    ddsPoint = re.findall(r"ddsPoint\[\d+\]\[0\]='([\d.]+)';", data_script)
+
+    if dsUpdate and ddsPoint:
+        data = [{'Date': date, 'Skill Point': float(skill_point)} for date, skill_point in zip(dsUpdate, ddsPoint)]
     else:
         data = None
     
