@@ -8,7 +8,8 @@ import asyncio
 async def fetch_page_content(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            return await response.text()
+            response_text = await response.read()
+            return response_text.decode('shift_jis')  # Explicitly decode using Shift_JIS
 
 def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
