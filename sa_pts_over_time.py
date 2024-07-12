@@ -1,64 +1,71 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import requests
-import re
+from requests_html import HTMLSession
 
 def scrape_data(user_code):
-    url = f"http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}"
-    response = requests.get(url)
-    page_content = response.text
-
-    # Extract JavaScript arrays
-    dddIndex = extract_js_array(page_content, 'dddIndex')
-    dsUpdate = extract_js_array(page_content, 'dsUpdate')
-    dsSkill = extract_js_array(page_content, 'dsSkill')
-    ddsPoint = extract_js_array(page_content, 'ddsPoint')
-
-    # Combine data into a structured format
-    data = []
-    for i in range(len(dsUpdate)):
-        data.append({
-            "Update": dsUpdate[i],
-            "Skill Point": dsSkill[i],
-            "Index": dddIndex[i][0] if dddIndex[i] else None,
-            "Point": ddsPoint[i]
-        })
+    url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
+    print(f'Requesting URL: {url}')
+    
+    session = HTMLSession()
+    response = session.get(url)
+    response.html.render()
 
     # Extract the username from JavaScript variable
-    username = extract_js_variable(page_content, 'sName')
+    username = response.html.search("sName='{}';")[0]
 
-    return username, data
+    # Extract data from the JavaScript arrays
+    dddIndex = extract_js_array(response.text, 'dddIndex')
+    dsUpdate = extract_js_array(response.text, 'dsUpdate')
+    dsSkill = extract_js_array(response.text, 'dsSkill')
 
-def extract_js_array(content, var_name):
-    regex = re.compile(rf"{var_name}\s*=\s*new Array\((.*?)\);", re.DOTALL)
-    match = regex.search(content)
-    if match:
-        array_content = match.group(1).strip()
-        # Replace JavaScript array syntax with Python list syntax
-        array_content = array_content.replace("'", '"')
-        array_content = f"[{array_content}]"
-        array_content = array_content.replace(", ", ",").replace(",[", ", [")
-        return eval(array_content)
-    return []
+    cleaned_data = []
+    for i in range(len(dsUpdate)):
+        try:
+            skill_point = float(dsSkill[i])
+            date = dsUpdate[i]
+            cleaned_data.append({'Date': date, 'Skill Point': skill_point})
+            print(f'Added data: Date={date}, Skill Point={skill_point}')
+        except ValueError:
+            print(f'Skipping row due to invalid skill point: {dsSkill[i]}')
 
-def extract_js_variable(content, var_name):
-    regex = re.compile(rf"{var_name}\s*=\s*'(.*?)';")
-    match = regex.search(content)
-    if match:
-        return match.group(1)
-    return None
+    return username, cleaned_data if cleaned_data else None
+
+def extract_js_array(page_content, array_name):
+    import re
+    pattern = re.compile(rf"{array_name}\s*=\s*new Array\((.*?)\);", re.DOTALL)
+    match = pattern.search(page_content)
+    if not match:
+        raise ValueError(f"Array {array_name} not found in page content")
+    
+    array_content = match.group(1).replace('\n', '').replace('\'', '"')
+    return eval(f"[{array_content}]")
 
 def plot_data(data, username, user_code):
+    # Create DataFrame
     df = pd.DataFrame(data)
-    st.write(f"Skill Attack Points Over Time for {username} (Code: {user_code})")
-    st.write(df)
+    df['Date'] = pd.to_datetime(df['Date'])
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(pd.to_datetime(df['Update']), df['Skill Point'], marker='o')
-    plt.title(f"Skill Attack Points Over Time for {username}")
-    plt.xlabel('Update')
-    plt.ylabel('Skill Points')
+    # Calculate yearly points gained
+    df['Year'] = df['Date'].dt.year
+    yearly_gain = df.groupby('Year')['Skill Point'].max().diff().fillna(0)
+
+    # Add dash in the middle of the user code
+    formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
+
+    # Plot the data with yearly points gained as labels
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['Date'], df['Skill Point'], marker='o', linestyle='-', color='b')
+
+    # Add data labels for yearly points gained
+    for year, gain in yearly_gain.items():
+        max_date = df[df['Year'] == year]['Date'].max()
+        max_skill = df[df['Year'] == year]['Skill Point'].max()
+        plt.text(max_date, max_skill, f'+{gain:.2f}', fontsize=9, ha='right', va='bottom')
+
+    plt.title(f'Skill Points Over Time with Yearly Gains\nFor Player: {username} ({formatted_user_code})')
+    plt.xlabel('Date')
+    plt.ylabel('Skill Point')
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
