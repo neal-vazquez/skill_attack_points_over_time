@@ -1,31 +1,25 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from requests_html import HTMLSession
+import requests
 import re
 
 def scrape_data(user_code):
-    session = HTMLSession()
-    url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
-    response = session.get(url)
-    
-    # Render JavaScript
-    response.html.render()
-    
-    # Extract JavaScript arrays from the page content
-    page_content = response.html.html
-    
-    # Finding the JavaScript arrays in the page content
-    dddIndex = find_js_array(page_content, 'dddIndex')
-    ddsMusic = find_js_array(page_content, 'ddsMusic')
-    dddStyle = find_js_array(page_content, 'dddStyle')
-    dddSequence = find_js_array(page_content, 'dddSequence')
-    dddDifficulty = find_js_array(page_content, 'dddDifficulty')
-    ddsScore = find_js_array(page_content, 'ddsScore')
-    dddFc = find_js_array(page_content, 'dddFc')
-    ddsPoint = find_js_array(page_content, 'ddsPoint')
-    
-    # Assuming all arrays have the same length
+    url = f"http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}"
+    response = requests.get(url)
+    page_content = response.text
+
+    # Extract JavaScript variables
+    dddIndex = extract_js_array(page_content, 'dddIndex')
+    ddsMusic = extract_js_array(page_content, 'ddsMusic')
+    dddStyle = extract_js_array(page_content, 'dddStyle')
+    dddSequence = extract_js_array(page_content, 'dddSequence')
+    dddDifficulty = extract_js_array(page_content, 'dddDifficulty')
+    ddsScore = extract_js_array(page_content, 'ddsScore')
+    dddFc = extract_js_array(page_content, 'dddFc')
+    ddsPoint = extract_js_array(page_content, 'ddsPoint')
+
+    # Combine data into a structured format
     data = []
     for i in range(len(dddIndex)):
         for j in range(len(dddIndex[i])):
@@ -39,14 +33,28 @@ def scrape_data(user_code):
                 "Fc": dddFc[i][j],
                 "Point": ddsPoint[i][j]
             })
-    
-    return data
 
-def find_js_array(page_content, array_name):
-    start = page_content.find(f"{array_name} = new Array();")
-    end = page_content.find(";", start)
-    array_content = page_content[start:end]
-    return eval(array_content.replace("new Array", ""))
+    # Extract the username from JavaScript variable
+    username = extract_js_variable(page_content, 'sName')
+
+    return username, data
+
+def extract_js_array(content, var_name):
+    regex = re.compile(rf"{var_name}\s*=\s*new Array\(\);(.*?)\s*;", re.DOTALL)
+    match = regex.search(content)
+    if match:
+        array_content = match.group(1).strip()
+        array_content = array_content.replace('new Array(', '[').replace(')', ']')
+        array_content = re.sub(r'\s+', '', array_content)
+        return eval(array_content)
+    return []
+
+def extract_js_variable(content, var_name):
+    regex = re.compile(rf"{var_name}\s*=\s*'(.*?)';")
+    match = regex.search(content)
+    if match:
+        return match.group(1)
+    return None
 
 def plot_data(data, username, user_code):
     df = pd.DataFrame(data)
@@ -54,9 +62,9 @@ def plot_data(data, username, user_code):
     st.write(df)
 
     plt.figure(figsize=(10, 5))
-    plt.plot(df['Date'], df['Point'], marker='o')
+    plt.plot(df['Index'], df['Point'], marker='o')
     plt.title(f"Skill Attack Points Over Time for {username}")
-    plt.xlabel('Date')
+    plt.xlabel('Index')
     plt.ylabel('Points')
     plt.grid(True)
     plt.xticks(rotation=45)
