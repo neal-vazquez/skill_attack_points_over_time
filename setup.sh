@@ -22,5 +22,13 @@ export PATH=$HOME/local/nodejs/bin:$PATH
 node -v
 npm -v
 
-# Install Playwright browsers with dependencies locally
-npx playwright install --with-deps
+# Create a directory for the project
+mkdir -p $HOME/project
+cd $HOME/project
+
+# Initialize npm and install Playwright
+npm init -y
+npm install @playwright/test
+
+# Install Playwright browsers
+npx playwright install
