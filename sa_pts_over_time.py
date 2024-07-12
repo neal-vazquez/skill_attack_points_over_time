@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from requests_html import HTMLSession
+import re
 
 def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
@@ -12,7 +13,7 @@ def scrape_data(user_code):
     
     # Debugging: Show the entire HTML content
     st.write("Page content preview:", response.html.html[:1000])  # Preview the first 1000 characters of the HTML
-    
+
     # Extract the username from JavaScript variable
     scripts = response.html.find('script', containing='sName')
     if scripts:
@@ -20,28 +21,16 @@ def scrape_data(user_code):
     else:
         username = "Unknown"
     
-    # Extract data from the table within div#score
-    data = []
-    score_div = response.html.find('div#score', first=True)
+    # Extract data from JavaScript arrays
+    data_script = response.html.find('script', containing='dddIndex')[0].text
+    dates = re.findall(r"ddsIndex\[\d+\]\[0\]='([\d/-]+)';", data_script)
+    skill_points = re.findall(r"ddsPoint\[\d+\]\[0\]='([\d.]+)';", data_script)
     
-    if score_div:
-        table = score_div.find('table', first=True)
-        if table:
-            rows = table.find('tr')[1:]  # Skip the header row
-            for row in rows:
-                cols = row.find('td')
-                if len(cols) >= 2:
-                    date = cols[0].text.strip()
-                    skill_point = cols[1].text.strip()
-                    try:
-                        skill_point = float(skill_point)
-                        data.append({'Date': date, 'Skill Point': skill_point})
-                    except ValueError:
-                        print(f'Skipping row due to invalid skill point: {skill_point}')
+    if dates and skill_points:
+        data = [{'Date': date, 'Skill Point': float(skill_point)} for date, skill_point in zip(dates, skill_points)]
+    else:
+        data = None
     
-    if not data:
-        return username, None
-
     return username, data
 
 def plot_data(data, username, user_code):
@@ -51,7 +40,7 @@ def plot_data(data, username, user_code):
     
     # Create DataFrame
     df = pd.DataFrame(data)
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d')
 
     # Calculate yearly points gained
     df['Year'] = df['Date'].dt.year
