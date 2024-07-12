@@ -20,27 +20,24 @@ def scrape_data(user_code):
     else:
         username = "Unknown"
     
-    # Extract data from the table
+    # Extract data from the table within div#score
     data = []
-    tables = response.html.find('table')
+    score_div = response.html.find('div#score', first=True)
     
-    # Debugging: Show the number of tables found
-    st.write(f"Number of tables found: {len(tables)}")
-    
-    if tables:
-        table = tables[0]  # Assuming the table is the first table on the page
-        rows = table.find('tr')[1:]  # Skip the header row
-        
-        for row in rows:
-            cols = row.find('td')
-            if len(cols) >= 2:
-                date = cols[0].text.strip()
-                skill_point = cols[1].text.strip()
-                try:
-                    skill_point = float(skill_point)
-                    data.append({'Date': date, 'Skill Point': skill_point})
-                except ValueError:
-                    print(f'Skipping row due to invalid skill point: {skill_point}')
+    if score_div:
+        table = score_div.find('table', first=True)
+        if table:
+            rows = table.find('tr')[1:]  # Skip the header row
+            for row in rows:
+                cols = row.find('td')
+                if len(cols) >= 2:
+                    date = cols[0].text.strip()
+                    skill_point = cols[1].text.strip()
+                    try:
+                        skill_point = float(skill_point)
+                        data.append({'Date': date, 'Skill Point': skill_point})
+                    except ValueError:
+                        print(f'Skipping row due to invalid skill point: {skill_point}')
     
     if not data:
         return username, None
