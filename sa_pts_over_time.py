@@ -1,29 +1,31 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from requests_html import AsyncHTMLSession
+from bs4 import BeautifulSoup
+import aiohttp
 import asyncio
 
 async def fetch_page_content(url):
-    session = AsyncHTMLSession()
-    response = await session.get(url)
-    await response.html.arender()
-    return response
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
 
 def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
     print(f'Requesting URL: {url}')
 
     # Fetch page content
-    response = asyncio.run(fetch_page_content(url))
+    page_content = asyncio.run(fetch_page_content(url))
+
+    soup = BeautifulSoup(page_content, 'html.parser')
 
     # Extract the username from JavaScript variable
-    username = response.html.search("sName='{}';")[0]
+    script = soup.find('script', text=lambda t: 'sName' in t)
+    username = script.text.split("sName='")[1].split("';")[0]
 
     # Extract data from the JavaScript arrays
-    dddIndex = extract_js_array(response.text, 'dddIndex')
-    dsUpdate = extract_js_array(response.text, 'dsUpdate')
-    dsSkill = extract_js_array(response.text, 'dsSkill')
+    dsUpdate = extract_js_array(script.text, 'dsUpdate')
+    dsSkill = extract_js_array(script.text, 'dsSkill')
 
     cleaned_data = []
     for i in range(len(dsUpdate)):
@@ -37,12 +39,12 @@ def scrape_data(user_code):
 
     return username, cleaned_data if cleaned_data else None
 
-def extract_js_array(page_content, array_name):
+def extract_js_array(script_text, array_name):
     import re
     pattern = re.compile(rf"{array_name}\s*=\s*new Array\((.*?)\);", re.DOTALL)
-    match = pattern.search(page_content)
+    match = pattern.search(script_text)
     if not match:
-        raise ValueError(f"Array {array_name} not found in page content")
+        raise ValueError(f"Array {array_name} not found in script text")
     
     array_content = match.group(1).replace('\n', '').replace('\'', '"')
     return eval(f"[{array_content}]")

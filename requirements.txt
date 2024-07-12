@@ -1,6 +1,5 @@
 streamlit
 pandas
 matplotlib
-requests-html
-lxml
-lxml_html_clean
+aiohttp
+beautifulsoup4
