@@ -8,10 +8,6 @@ import subprocess
 # Run setup.sh to ensure Playwright browsers are installed and log output
 subprocess.run(["/bin/bash", "setup.sh"])
 
-# Check the log file for errors
-with open("/var/log/setup.log", "r") as f:
-    st.text(f.read())
-
 async def scrape_data(user_code):
     url = f'http://skillattack.com/sa4/dancer_skillpoint.php?ddrcode={user_code}'
     print(f'Requesting URL: {url}')
