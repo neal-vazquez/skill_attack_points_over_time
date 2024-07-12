@@ -48,6 +48,10 @@ def scrape_data(user_code):
     return username, data
 
 def plot_data(data, username, user_code):
+    if not data:
+        st.write("No data available to plot.")
+        return
+    
     # Create DataFrame
     df = pd.DataFrame(data)
     df['Date'] = pd.to_datetime(df['Date'])
