@@ -63,10 +63,12 @@ def plot_data(data, username, user_code):
 
     for i, year in enumerate(years):
         year_data = df[df['Year'] == year]
+        print(f"Processing year: {year}")
+        print(f"Year data: {year_data}")
 
         if len(year_data) > 1:
             # Calculate gain as difference between last and first scores of the year
-            gain = year_data['Skill Point'].iloc[-1] - year_data['Skill Point'].iloc[0]
+            gain = year_data['Skill Point'].max() - year_data['Skill Point'].min()
         elif len(year_data) == 1:
             if i == 0:
                 # First year with only one score
@@ -80,12 +82,32 @@ def plot_data(data, username, user_code):
 
                 if previous_year_index >= 0:
                     previous_year_data = df[df['Year'] == years[previous_year_index]]
-                    previous_last_score = previous_year_data['Skill Point'].iloc[-1] if len(previous_year_data) > 0 else 0
+                    previous_last_score = previous_year_data['Skill Point'].max() if len(previous_year_data) > 0 else 0
                     gain = year_data['Skill Point'].iloc[0] - previous_last_score
                 else:
                     gain = 0.0
 
         yearly_gain[year] = gain
+
+    # Handle the last year edge case separately
+    if len(years) > 1:
+        last_year = years[-1]
+        last_year_data = df[df['Year'] == last_year]
+        if len(last_year_data) == 1:
+            second_last_year_index = len(years) - 2
+            # Find the previous year with a score
+            while second_last_year_index >= 0 and len(df[df['Year'] == years[second_last_year_index]]) == 0:
+                second_last_year_index -= 1
+
+            if second_last_year_index >= 0:
+                second_last_year = years[second_last_year_index]
+                second_last_year_data = df[df['Year'] == second_last_year]
+                if len(second_last_year_data) > 0:
+                    last_year_gain = last_year_data['Skill Point'].iloc[0] - second_last_year_data['Skill Point'].max()
+                    print(f"Last year gain: {last_year_gain} (from {last_year_data['Skill Point'].iloc[0]} - {second_last_year_data['Skill Point'].max()})")
+                    yearly_gain[last_year] = last_year_gain
+
+    print(f"Yearly gain: {yearly_gain}")
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
@@ -108,6 +130,7 @@ def plot_data(data, username, user_code):
     plt.tight_layout()
 
     st.pyplot(plt)
+
 
 
 
