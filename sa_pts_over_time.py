@@ -57,18 +57,20 @@ def plot_data(data, username, user_code):
 
     # Calculate yearly points gained
     df['Year'] = df['Date'].dt.year
-    yearly_max = df.groupby('Year')['Skill Point'].max()
-    yearly_min = df.groupby('Year')['Skill Point'].min()
+    yearly_gain = {}
 
-    # Handle the edge case for the last year
-    last_year = df['Year'].max()
-    last_year_data = df[df['Year'] == last_year]
-    if len(last_year_data) == 1:
-        previous_year_max = yearly_max.loc[last_year - 1]
-        yearly_max.loc[last_year] = last_year_data['Skill Point'].values[0]
-        yearly_min.loc[last_year] = previous_year_max
-
-    yearly_gain = yearly_max - yearly_min
+    years = sorted(df['Year'].unique())
+    for i, year in enumerate(years):
+        year_data = df[df['Year'] == year]
+        if len(year_data) > 1:
+            gain = year_data['Skill Point'].iloc[-1] - year_data['Skill Point'].iloc[0]
+        elif len(year_data) == 1 and i > 0:
+            previous_year = years[i - 1]
+            previous_year_data = df[df['Year'] == previous_year]
+            gain = year_data['Skill Point'].iloc[0] - previous_year_data['Skill Point'].iloc[-1]
+        else:
+            gain = 0.0
+        yearly_gain[year] = gain
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
@@ -112,8 +114,11 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # Title and description
 st.markdown('<div class="title-section"><h1>Skill Attack Points Over Time<br>Chart Generator</h1>', unsafe_allow_html=True)
 
-st.markdown('Enter an 8-digit ddr code to scrape a [Skill Attack](http://skillattack.com/sa4/) page and visualize the trend of skill points for a given player over time. Each dot represents an update to the player\'s skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.')
-st.markdown('<div class="title-section"><br>', unsafe_allow_html=True)
+st.write('''Enter an 8-digit ddr code to scrape a 
+<a href="http://skillattack.com/sa4/" target="_blank">Skill Attack</a> 
+page and visualize the trend of skill points for a given player over time. 
+Each dot represents an update to the player's skill points on a given date 
+and the data labels show the amount of skill points gained over the course of the calendar year.''', unsafe_allow_html=True)
 
 user_code = st.text_input('Please enter the 8-digit ddr code without dashes:')
 
