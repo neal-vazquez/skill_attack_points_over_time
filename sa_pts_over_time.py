@@ -57,7 +57,19 @@ def plot_data(data, username, user_code):
 
     # Calculate yearly points gained
     df['Year'] = df['Date'].dt.year
-    yearly_gain = df.groupby('Year').apply(lambda x: x['Skill Point'].iloc[-1] - x['Skill Point'].iloc[0])
+    yearly_gain = []
+
+    for year in df['Year'].unique():
+        yearly_data = df[df['Year'] == year]
+        if len(yearly_data) > 1:
+            gain = yearly_data['Skill Point'].iloc[-1] - yearly_data['Skill Point'].iloc[0]
+        else:
+            prev_year_data = df[df['Year'] < year]
+            if not prev_year_data.empty:
+                gain = yearly_data['Skill Point'].iloc[0] - prev_year_data['Skill Point'].iloc[-1]
+            else:
+                gain = 0
+        yearly_gain.append((year, gain))
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
@@ -67,7 +79,7 @@ def plot_data(data, username, user_code):
     plt.plot(df['Date'], df['Skill Point'], marker='o', linestyle='-', color='b')
 
     # Add data labels for yearly points gained
-    for year, gain in yearly_gain.items():
+    for year, gain in yearly_gain:
         max_date = df[df['Year'] == year]['Date'].max()
         max_skill = df[df['Year'] == year]['Skill Point'].max()
         gain_formatted = f"+{abs(gain):.2f}"
