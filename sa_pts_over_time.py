@@ -59,11 +59,17 @@ def plot_data(data, username, user_code):
     df['Year'] = df['Date'].dt.year
     yearly_max = df.groupby('Year')['Skill Point'].max()
     yearly_min = df.groupby('Year')['Skill Point'].min()
+    
+    # Initialize yearly_gain with the correct first year calculation
     yearly_gain = yearly_max - yearly_min
-    yearly_gain.iloc[0] = yearly_max.iloc[0] - df['Skill Point'].iloc[0]  # Correct first year's gain
+    first_year = df['Year'].iloc[0]
+    first_year_max = df[df['Year'] == first_year]['Skill Point'].max()
+    first_year_initial = df['Skill Point'].iloc[0]
+    yearly_gain.iloc[0] = first_year_max - first_year_initial
 
     # Fix the calculation for subsequent years
-    yearly_gain = yearly_gain - yearly_gain.shift(1).fillna(0)
+    for year in yearly_gain.index[1:]:
+        yearly_gain[year] = yearly_max[year] - yearly_max[year - 1]
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
