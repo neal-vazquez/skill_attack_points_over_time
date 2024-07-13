@@ -57,21 +57,18 @@ def plot_data(data, username, user_code):
 
     # Calculate yearly points gained
     df['Year'] = df['Date'].dt.year
-    yearly_gain = []
+    yearly_max = df.groupby('Year')['Skill Point'].max()
+    yearly_min = df.groupby('Year')['Skill Point'].min()
 
-    previous_year_max = None
+    # Handle the edge case for the last year
+    last_year = df['Year'].max()
+    last_year_data = df[df['Year'] == last_year]
+    if len(last_year_data) == 1:
+        previous_year_max = yearly_max.loc[last_year - 1]
+        yearly_max.loc[last_year] = last_year_data['Skill Point'].values[0]
+        yearly_min.loc[last_year] = previous_year_max
 
-    for year in df['Year'].unique():
-        yearly_data = df[df['Year'] == year]
-        if len(yearly_data) > 1:
-            gain = yearly_data['Skill Point'].iloc[-1] - yearly_data['Skill Point'].iloc[0]
-        else:
-            if previous_year_max is not None:
-                gain = yearly_data['Skill Point'].iloc[0] - previous_year_max
-            else:
-                gain = 0
-        yearly_gain.append((year, gain))
-        previous_year_max = yearly_data['Skill Point'].iloc[-1]
+    yearly_gain = yearly_max - yearly_min
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
@@ -81,11 +78,10 @@ def plot_data(data, username, user_code):
     plt.plot(df['Date'], df['Skill Point'], marker='o', linestyle='-', color='b')
 
     # Add data labels for yearly points gained
-    for year, gain in yearly_gain:
+    for year, gain in yearly_gain.items():
         max_date = df[df['Year'] == year]['Date'].max()
         max_skill = df[df['Year'] == year]['Skill Point'].max()
-        gain_formatted = f"+{abs(gain):.2f}"
-        plt.text(max_date, max_skill, gain_formatted, fontsize=9, ha='right', va='bottom')
+        plt.text(max_date, max_skill, f'+{gain:.2f}', fontsize=9, ha='right', va='bottom')
 
     plt.title(f'Skill Points Over Time with Yearly Gains\nFor Player: {username} ({formatted_user_code})')
     plt.xlabel('Date')
