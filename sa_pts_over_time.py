@@ -84,7 +84,6 @@ def plot_data(data, username, user_code):
 
     st.pyplot(plt)
 
-
 st.set_page_config(page_title="Skill Attack Points Over Time", page_icon=":chart_with_upwards_trend:")
 
 # Custom CSS to adjust spacing
@@ -105,7 +104,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # Title and description
 st.markdown('<div class="title-section"><h1>Skill Attack Points Over Time<br>Chart Generator</h1>', unsafe_allow_html=True)
 
-st.write("Enter an 8-digit ddr code to scrape a Skill Attack page and visualize the trend of skill points for a given player over time. Each dot represents an update to the player's skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.")
+st.markdown('Enter an 8-digit ddr code to scrape a [Skill Attack](http://skillattack.com/sa4/) page and visualize the trend of skill points for a given player over time. Each dot represents an update to the player\'s skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.')
 st.markdown('<div class="title-section"><br>', unsafe_allow_html=True)
 
 user_code = st.text_input('Please enter the 8-digit ddr code without dashes:')
