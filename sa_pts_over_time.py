@@ -59,17 +59,19 @@ def plot_data(data, username, user_code):
     df['Year'] = df['Date'].dt.year
     yearly_gain = []
 
+    previous_year_max = None
+
     for year in df['Year'].unique():
         yearly_data = df[df['Year'] == year]
         if len(yearly_data) > 1:
             gain = yearly_data['Skill Point'].iloc[-1] - yearly_data['Skill Point'].iloc[0]
         else:
-            prev_year_data = df[df['Year'] < year]
-            if not prev_year_data.empty:
-                gain = yearly_data['Skill Point'].iloc[0] - prev_year_data['Skill Point'].iloc[-1]
+            if previous_year_max is not None:
+                gain = yearly_data['Skill Point'].iloc[0] - previous_year_max
             else:
                 gain = 0
         yearly_gain.append((year, gain))
+        previous_year_max = yearly_data['Skill Point'].iloc[-1]
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
