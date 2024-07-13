@@ -83,7 +83,7 @@ def plot_data(data, username, user_code):
     for year, gain in yearly_gain.items():
         max_date = df[df['Year'] == year]['Date'].max()
         max_skill = df[df['Year'] == year]['Skill Point'].max()
-        plt.text(max_date, max_skill, f'+{gain:.2f}', fontsize=9, ha='right', va='bottom')
+        plt.text(max_date, max_skill, f'+{abs(gain):.2f}', fontsize=9, ha='right', va='bottom')
 
     plt.title(f'Skill Points Over Time with Yearly Gains\nFor Player: {username} ({formatted_user_code})')
     plt.xlabel('Date')
