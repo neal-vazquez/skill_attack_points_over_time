@@ -60,11 +60,10 @@ def plot_data(data, username, user_code):
     yearly_gain = {}
 
     years = sorted(df['Year'].unique())
-    last_year_score = None
 
     for i, year in enumerate(years):
         year_data = df[df['Year'] == year]
-        
+
         if len(year_data) > 1:
             # Calculate gain as difference between last and first scores of the year
             gain = year_data['Skill Point'].iloc[-1] - year_data['Skill Point'].iloc[0]
@@ -74,24 +73,19 @@ def plot_data(data, username, user_code):
                 gain = 0.0
             else:
                 # Single score year, calculate gain with the last score of the previous year
-                previous_year = years[i - 1]
-                previous_year_data = df[df['Year'] == previous_year]
-                previous_last_score = previous_year_data['Skill Point'].iloc[-1] if len(previous_year_data) > 0 else 0
-                gain = year_data['Skill Point'].iloc[0] - previous_last_score
+                previous_year_index = i - 1
+                # Find the previous year with a score
+                while previous_year_index >= 0 and len(df[df['Year'] == years[previous_year_index]]) == 0:
+                    previous_year_index -= 1
+
+                if previous_year_index >= 0:
+                    previous_year_data = df[df['Year'] == years[previous_year_index]]
+                    previous_last_score = previous_year_data['Skill Point'].iloc[-1] if len(previous_year_data) > 0 else 0
+                    gain = year_data['Skill Point'].iloc[0] - previous_last_score
+                else:
+                    gain = 0.0
 
         yearly_gain[year] = gain
-        last_year_score = year_data['Skill Point'].iloc[-1]
-
-    # Handle the last year case separately if there is only one score in the last year
-    if len(df[df['Year'] == years[-1]]) == 1:
-        last_year = years[-1]
-        if len(years) > 1:
-            second_last_year = years[-2]
-            last_year_score = df[df['Year'] == last_year]['Skill Point'].iloc[0]
-            second_last_year_last_score = df[df['Year'] == second_last_year]['Skill Point'].iloc[-1]
-            yearly_gain[last_year] = last_year_score - second_last_year_last_score
-        else:
-            yearly_gain[last_year] = 0.0
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
