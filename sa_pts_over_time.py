@@ -64,12 +64,13 @@ def plot_data(data, username, user_code):
         year_data = df[df['Year'] == year]
         if len(year_data) > 1:
             gain = year_data['Skill Point'].iloc[-1] - year_data['Skill Point'].iloc[0]
-        elif len(year_data) == 1 and i > 0:
-            previous_year = years[i - 1]
-            previous_year_data = df[df['Year'] == previous_year]
-            gain = year_data['Skill Point'].iloc[0] - previous_year_data['Skill Point'].iloc[-1]
-        else:
-            gain = 0.0
+        elif len(year_data) == 1:
+            if i == 0:
+                gain = 0.0
+            else:
+                previous_year = years[i - 1]
+                previous_year_data = df[df['Year'] == previous_year]
+                gain = year_data['Skill Point'].iloc[0] - previous_year_data['Skill Point'].iloc[-1]
         yearly_gain[year] = gain
 
     # Add dash in the middle of the user code
