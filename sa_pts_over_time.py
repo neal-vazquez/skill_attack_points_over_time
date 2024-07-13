@@ -64,13 +64,21 @@ def plot_data(data, username, user_code):
 
     for i, year in enumerate(years):
         year_data = df[df['Year'] == year]
+        
         if len(year_data) > 1:
+            # Calculate gain as difference between last and first scores of the year
             gain = year_data['Skill Point'].iloc[-1] - year_data['Skill Point'].iloc[0]
         elif len(year_data) == 1:
             if i == 0:
+                # First year with only one score
                 gain = 0.0
             else:
-                gain = year_data['Skill Point'].iloc[0] - last_year_score
+                # Single score year, calculate gain with the last score of the previous year
+                previous_year = years[i - 1]
+                previous_year_data = df[df['Year'] == previous_year]
+                previous_last_score = previous_year_data['Skill Point'].iloc[-1] if len(previous_year_data) > 0 else 0
+                gain = year_data['Skill Point'].iloc[0] - previous_last_score
+
         yearly_gain[year] = gain
         last_year_score = year_data['Skill Point'].iloc[-1]
 
