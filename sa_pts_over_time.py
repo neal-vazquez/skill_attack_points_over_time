@@ -60,6 +60,8 @@ def plot_data(data, username, user_code):
     yearly_gain = {}
 
     years = sorted(df['Year'].unique())
+    last_year_score = None
+
     for i, year in enumerate(years):
         year_data = df[df['Year'] == year]
         if len(year_data) > 1:
@@ -68,10 +70,9 @@ def plot_data(data, username, user_code):
             if i == 0:
                 gain = 0.0
             else:
-                previous_year = years[i - 1]
-                previous_year_data = df[df['Year'] == previous_year]
-                gain = year_data['Skill Point'].iloc[0] - previous_year_data['Skill Point'].iloc[-1]
+                gain = year_data['Skill Point'].iloc[0] - last_year_score
         yearly_gain[year] = gain
+        last_year_score = year_data['Skill Point'].iloc[-1]
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
@@ -94,6 +95,7 @@ def plot_data(data, username, user_code):
     plt.tight_layout()
 
     st.pyplot(plt)
+
 
 st.set_page_config(page_title="Skill Attack Points Over Time", page_icon=":chart_with_upwards_trend:")
 
