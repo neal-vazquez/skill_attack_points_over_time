@@ -57,7 +57,8 @@ def plot_data(data, username, user_code):
 
     # Calculate yearly points gained
     df['Year'] = df['Date'].dt.year
-    yearly_gain = df.groupby('Year')['Skill Point'].max().diff().fillna(0)
+    yearly_max = df.groupby('Year')['Skill Point'].max()
+    yearly_gain = yearly_max.diff().fillna(yearly_max)
 
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
@@ -101,7 +102,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # Title and description
 st.markdown('<div class="title-section"><h1>Skill Attack Points Over Time<br>Chart Generator</h1>', unsafe_allow_html=True)
 
-st.write("Enter the 8-digit ddr code to scrape a Skill Attack page and visualize the trend of skill points for a given player over time. Each dot represents an update to the player's skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.")
+st.write("Enter an 8-digit ddr code to scrape a Skill Attack page and visualize the trend of skill points for a given player over time. Each dot represents an update to the player's skill points on a given date and the data labels show the amount of skill points gained over the course of the calendar year.")
 st.markdown('<div class="title-section"><br>', unsafe_allow_html=True)
 
 user_code = st.text_input('Please enter the 8-digit ddr code without dashes:')
