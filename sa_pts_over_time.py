@@ -62,6 +62,9 @@ def plot_data(data, username, user_code):
     yearly_gain = yearly_max - yearly_min
     yearly_gain.iloc[0] = yearly_max.iloc[0] - df['Skill Point'].iloc[0]  # Correct first year's gain
 
+    # Fix the calculation for subsequent years
+    yearly_gain = yearly_gain - yearly_gain.shift(1).fillna(0)
+
     # Add dash in the middle of the user code
     formatted_user_code = f"{user_code[:4]}-{user_code[4:]}"
 
