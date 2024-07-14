@@ -152,7 +152,7 @@ h1 {
 st.markdown(custom_css, unsafe_allow_html=True)
 
 # Title and description
-st.markdown('<div class="title-section"><h1>Skill Attack Points Over Time<br>Chart Generator</h1>', unsafe_allow_html=True)
+st.markdown('<div class="title-section"><h1>Skill Attack<br>Points Over Time<br>Line Chart Generator</h1>', unsafe_allow_html=True)
 
 st.write('''Enter an 8-digit ddr code to scrape a 
 <a href="http://skillattack.com/sa4/" target="_blank">Skill Attack</a> 
