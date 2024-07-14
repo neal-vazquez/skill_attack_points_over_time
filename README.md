@@ -75,8 +75,8 @@ The footer contains social media links and credits.
 For any questions or issues, please contact:
 
 - **Author:** mio in collaboration with GPT-4o
-- **Email:** [neal.vazquez@ischool.berkeley.edu]
-- **GitHub:** [Your GitHub Profile](https://github.com/neal-vazquez/)
+- **Email:** [neal.vazquez@ischool.berkeley.edu](mailto:neal.vazquez@ischool.berkeley.edu)
+- **GitHub:** [GitHub](https://github.com/neal-vazquez/)
 
 ## License
 
