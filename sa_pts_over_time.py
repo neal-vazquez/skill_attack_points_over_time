@@ -156,7 +156,7 @@ st.markdown('<div class="title-section"><h1>Skill Attack<br>Points Over Time<br>
 
 st.write('''Enter an 8-digit ddr code to scrape a 
 <a href="http://skillattack.com/sa4/" target="_blank">Skill Attack</a> 
-page and visualize the trend of skill points for a given player over time. 
+profile and visualize the trend of skill points for a given player over time. 
 Each dot represents an update to the player's skill points on a given date 
 and the data labels show the amount of skill points gained over the course of the calendar year.''', unsafe_allow_html=True)
 
