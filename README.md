@@ -1,7 +1,7 @@
 # Skill Attack Points Over Time
 
 ## Overview
-Skill Attack Points Over Time is a a visualization tool that allows Dance Dance Revolution players to visualize the trend of skill points over time. It is a Streamlit application that uses web scraping to generate a formatted line chart using an 8-digit code. On the line chart, each dot on the graph represents an update to the player's skill points on a given date, and data labels show the amount of skill points gained over the course of the calendar year.
+Skill Attack Points Over Time is a a visualization tool that allows Dance Dance Revolution players to visualize the trend of skill points over time. It is a Streamlit application that uses web scraping to generate a formatted line chart using an 8-digit DDR player code. On the line chart, each dot on the graph represents an update to the player's skill points on a given date, and data labels show the amount of skill points gained over the course of the calendar year.
 
 ## Features
 - Scrapes data from the Skill Attack website based on a user-provided DDR code.
@@ -19,23 +19,26 @@ To run this application locally, follow these steps:
    ```
 
 2. **Create a virtual environment:**
-   ```python -m venv venv
+   ```bash
+   python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 
 3. **Install the required dependencies:**
-   ```pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
    ```
 
-4. **Create a virtual environment:**
-   ```streamlit run sa_pts_over_time.py
+4. **Run the Streamlit app file:**
+   ```bash
+   streamlit run sa_pts_over_time.py
    ```
 
 ## Usage
 
 1. **Open the application:** After running the Streamlit app, a new tab will open in your default web browser.
 
-2. **Enter the DDR code:** Enter an 8-digit DDR code without dashes in the text input field.
+2. **Enter the DDR code:** Enter an 8-digit DDR code from Skill Attack without dashes in the text input field.
 
 3. **Submit the code:** Click the "Submit" button to scrape the Skill Attack page and visualize the trend of skill points.
 
@@ -72,8 +75,8 @@ The footer contains social media links and credits.
 For any questions or issues, please contact:
 
 - **Author:** mio in collaboration with GPT-4o
-- **Email:** [your_email@example.com]
-- **GitHub:** [Your GitHub Profile](https://github.com/your_profile)
+- **Email:** [neal.vazquez@ischool.berkeley.edu]
+- **GitHub:** [Your GitHub Profile](https://github.com/neal-vazquez/)
 
 ## License
 
