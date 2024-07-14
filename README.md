@@ -87,4 +87,4 @@ For any questions or issues, please contact:
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/git/git-scm.com/blob/main/MIT-LICENSE.txt) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
