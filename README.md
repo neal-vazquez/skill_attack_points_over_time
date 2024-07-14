@@ -48,23 +48,29 @@ To run this application locally, follow these steps:
 
 ## Code Overview
 
-#### `fetch_page_content(url)`
+- #### `fetch_page_content(url)`
 This asynchronous function fetches the page content from the given URL using `aiohttp` and decodes it using `Shift_JIS` encoding.
 
-#### `scrape_data(user_code)`
+
+- #### `scrape_data(user_code)`
 This function constructs the Skill Attack URL using the provided DDR code, fetches the page content, and parses it using `BeautifulSoup`. It extracts the username and skill point data from the JavaScript arrays embedded in the page.
 
-#### `extract_js_array(script_text, array_name)`
+
+- #### `extract_js_array(script_text, array_name)`
 This function extracts JavaScript array data from the provided script text based on the array name.
 
-#### `plot_data(data, username, user_code)`
+
+- #### `plot_data(data, username, user_code)`
 This function creates a DataFrame from the scraped data, calculates yearly points gained, and plots the data using `matplotlib`. It handles edge cases such as single score submissions for a year and missing years.
 
-#### Custom CSS
+
+- #### Custom CSS
 Custom CSS is applied to adjust the spacing of the title and description.
 
-#### Footer
+
+- #### Footer
 The footer contains authorship credits.
+
 
 ### Dockerfile Overview
 
