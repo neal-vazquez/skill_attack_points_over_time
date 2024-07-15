@@ -1,7 +1,7 @@
 # Skill Attack Points Over Time
 
 ## Overview
-Skill Attack Points Over Time is a a visualization tool that allows Dance Dance Revolution players to visualize the trend of skill points over time. It is a Streamlit application that uses web scraping to generate a formatted line chart using an 8-digit DDR player code. On the line chart, each dot on the graph represents an update to the player's skill points on a given date, and data labels show the amount of skill points gained over the course of the calendar year.
+Skill Attack Points Over Time is a visualization tool that allows Dance Dance Revolution players to visualize the trend of skill points over time. It is a Streamlit application that uses web scraping to generate a formatted line chart using an 8-digit DDR player code. On the line chart, each dot on the graph represents an update to the player's skill points on a given date, and data labels show the amount of skill points gained over the course of the calendar year.
 
 
 ## Features
